@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Add Product</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+  </head>
+  <body class="bg-gray-100 p-10">
+    <form
+      action="/save-product"
+      method="POST"
+      class="bg-white p-6 rounded shadow w-96 mx-auto"
+    >
+      <h1 class="text-2xl font-bold mb-6">Add Product</h1>
+      <input
+        name="name"
+        placeholder="Product Name"
+        class="border p-2 w-full mb-3"
+        required
+      />
+      <input
+        name="code"
+        placeholder="Product Code"
+        class="border p-2 w-full mb-3"
+        required
+      />
+      <input name="brand" placeholder="Brand" class="border p-2 w-full mb-3" />
+      <input
+        name="price"
+        type="number"
+        placeholder="Price"
+        class="border p-2 w-full mb-3"
+        required
+      />
+      <input
+        name="productUnit"
+        type="number"
+        placeholder="Product Unit"
+        class="border p-2 w-full mb-3"
+        required
+      />
+      <input
+        name="inStock"
+        type="number"
+        placeholder="In Stock"
+        class="border p-2 w-full mb-3"
+        required
+      />
+      <input
+        name="createdAt"
+        type="date"
+        placeholder="Created At"
+        class="border p-2 w-full mb-3"
+        required
+      />
+
+      <button class="bg-indigo-600 text-white px-4 py-2 rounded w-full">
+        Save Product
+      </button>
+    </form>
+  </body>
+</html>
