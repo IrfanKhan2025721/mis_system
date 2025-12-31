@@ -49,11 +49,17 @@ function dashboardLayout(title, content) {
 const server = http.createServer(async (req, res) => {
   const url = new URL(req.url, `http://${req.headers.host}`);
 
-  /* ================= DASHBOARD ================= */
+  /* DASHBOARD */
   if (req.method === "GET" && url.pathname === "/dashboard") {
     await client.connect();
-    const productsCount = await client.db("nodedb").collection("products").countDocuments();
-    const categoriesCount = await client.db("nodedb").collection("categories").countDocuments();
+    const productsCount = await client
+      .db("nodedb")
+      .collection("products")
+      .countDocuments();
+    const categoriesCount = await client
+      .db("nodedb")
+      .collection("categories")
+      .countDocuments();
     await client.close();
 
     const content = `
@@ -70,15 +76,20 @@ const server = http.createServer(async (req, res) => {
       </div>
     `;
     res.end(dashboardLayout("Dashboard", content));
-  }
+  } else if (req.method === "GET" && url.pathname === "/products") {
 
-  /* ================= PRODUCTS ================= */
-  else if (req.method === "GET" && url.pathname === "/products") {
+  /* PRODUCTS */
     await client.connect();
-    const products = await client.db("nodedb").collection("products").find().toArray();
+    const products = await client
+      .db("nodedb")
+      .collection("products")
+      .find()
+      .toArray();
     await client.close();
 
-    const rows = products.map(p => `
+    const rows = products
+      .map(
+        (p) => `
       <tr class="border-b">
         <td class="px-3 py-2">${p.name}</td>
         <td class="px-3 py-2">${p.code}</td>
@@ -89,7 +100,9 @@ const server = http.createServer(async (req, res) => {
           <a href="/delete-product?id=${p._id}" class="text-red-600">Delete</a>
         </td>
       </tr>
-    `).join("");
+    `
+      )
+      .join("");
 
     const content = `
       <div class="flex justify-between mb-4">
@@ -110,10 +123,9 @@ const server = http.createServer(async (req, res) => {
       </table>
     `;
     res.end(dashboardLayout("Products", content));
-  }
+  } else if (req.method === "GET" && url.pathname === "/add-product") {
 
-  /* ================= ADD PRODUCT ================= */
-  else if (req.method === "GET" && url.pathname === "/add-product") {
+  /* ADD PRODUCT */
     const content = `
       <form action="/save-product" method="POST" class="bg-white p-6 rounded shadow w-96 mx-auto">
         <h1 class="text-2xl font-bold mb-4">Add Product</h1>
@@ -125,32 +137,35 @@ const server = http.createServer(async (req, res) => {
       </form>
     `;
     res.end(dashboardLayout("Add Product", content));
-  }
-
-  else if (req.method === "POST" && url.pathname === "/save-product") {
+  } else if (req.method === "POST" && url.pathname === "/save-product") {
     let body = "";
-    req.on("data", chunk => body += chunk);
+    req.on("data", (chunk) => (body += chunk));
     req.on("end", async () => {
       const d = querystring.parse(body);
       await client.connect();
-      await client.db("nodedb").collection("products").insertOne({
-        name: d.name,
-        code: d.code,
-        brand: d.brand,
-        price: Number(d.price),
-        createdAt: new Date()
-      });
+      await client
+        .db("nodedb")
+        .collection("products")
+        .insertOne({
+          name: d.name,
+          code: d.code,
+          brand: d.brand,
+          price: Number(d.price),
+          createdAt: new Date(),
+        });
       await client.close();
       res.writeHead(302, { Location: "/products" });
       res.end();
     });
-  }
+  } else if (req.method === "GET" && url.pathname === "/edit-product") {
 
-  /* ================= EDIT PRODUCT ================= */
-  else if (req.method === "GET" && url.pathname === "/edit-product") {
+  /* EDIT PRODUCT */
     const id = url.searchParams.get("id");
     await client.connect();
-    const p = await client.db("nodedb").collection("products").findOne({ _id: new ObjectId(id) });
+    const p = await client
+      .db("nodedb")
+      .collection("products")
+      .findOne({ _id: new ObjectId(id) });
     await client.close();
 
     const content = `
@@ -165,35 +180,43 @@ const server = http.createServer(async (req, res) => {
       </form>
     `;
     res.end(dashboardLayout("Edit Product", content));
-  }
-
-  else if (req.method === "POST" && url.pathname === "/update-product") {
+  } else if (req.method === "POST" && url.pathname === "/update-product") {
     let body = "";
-    req.on("data", chunk => body += chunk);
+    req.on("data", (chunk) => (body += chunk));
     req.on("end", async () => {
       const d = querystring.parse(body);
       await client.connect();
-      await client.db("nodedb").collection("products").updateOne(
-        { _id: new ObjectId(d.id) },
-        { $set: { name: d.name, code: d.code, brand: d.brand, price: Number(d.price) } }
-      );
+      await client
+        .db("nodedb")
+        .collection("products")
+        .updateOne(
+          { _id: new ObjectId(d.id) },
+          {
+            $set: {
+              name: d.name,
+              code: d.code,
+              brand: d.brand,
+              price: Number(d.price),
+            },
+          }
+        );
       await client.close();
       res.writeHead(302, { Location: "/products" });
       res.end();
     });
-  }
+  } else if (req.method === "GET" && url.pathname === "/delete-product") {
 
-  /* ================= DELETE ================= */
-  else if (req.method === "GET" && url.pathname === "/delete-product") {
+  /* DELETE */
     const id = url.searchParams.get("id");
     await client.connect();
-    await client.db("nodedb").collection("products").deleteOne({ _id: new ObjectId(id) });
+    await client
+      .db("nodedb")
+      .collection("products")
+      .deleteOne({ _id: new ObjectId(id) });
     await client.close();
     res.writeHead(302, { Location: "/products" });
     res.end();
-  }
-
-  else {
+  } else {
     res.writeHead(404);
     res.end("Not Found");
   }
